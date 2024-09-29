@@ -1,3 +1,5 @@
+# https://insightsengineering.github.io/teal/latest-tag/articles/adding-support-for-reporting.html#tealreportcard
+
 library(teal)
 library(ggplot2)
 
@@ -8,7 +10,7 @@ custom_module_ui <- function(id) {
     shiny::selectInput(
       ns("datasets"),
       label = "select dataset",
-      choices = c("iris", "mtcars")
+      choices = NULL
     ),
     shiny::selectInput(
       ns("variables"),
@@ -33,7 +35,13 @@ custom_module_ui <- function(id) {
 custom_module_server <- function(id, data, reporter, filter_panel_api) {
   moduleServer(id, function(input, output, session) {
 
+    updateSelectInput(
+      inputId = "datasets",
+      choices = datanames(data())
+    )
+
     observeEvent(input$datasets, {
+      req(input$datasets)
 
       only_numeric <- sapply(data()[[input$datasets]], is.numeric)
 
@@ -72,8 +80,6 @@ custom_module_server <- function(id, data, reporter, filter_panel_api) {
       title = "Example Code"
     )
 
-    # https://insightsengineering.github.io/teal/latest-tag/articles/adding-support-for-reporting.html#tealreportcard
-
     card_function <- function(card = teal::TealReportCard$new()) {
       card$append_fs(filter_panel_api$get_filter_state())
       card$append_text(paste("Selected dataset", input$datasets))
@@ -98,15 +104,13 @@ my_custom_module <- function(label = "My custom module") {
   )
 }
 
+data <- within(teal_data(), {
+  ADSL <- teal.data::rADSL
+  ADAE <- teal.data::rADAE
+})
+
 app <- init(
-  data = teal_data(
-    iris = iris,
-    mtcars = mtcars,
-    code = "
-      iris <- iris
-      mtcars <- mtcars
-    "
-  ),
+  data = data,
   modules = modules(
     my_custom_module(label = "my module")
   ),

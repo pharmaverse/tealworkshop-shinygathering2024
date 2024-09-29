@@ -8,7 +8,7 @@ custom_module_ui <- function(id) {
     shiny::selectInput(
       ns("datasets"),
       label = "select dataset",
-      choices = c("iris", "mtcars")
+      choices = NULL
     ),
     shiny::selectInput(
       ns("variables"),
@@ -31,7 +31,13 @@ custom_module_ui <- function(id) {
 custom_module_server <- function(id, data) {
   moduleServer(id, function(input, output, session) {
 
+    updateSelectInput(
+      inputId = "datasets",
+      choices = datanames(data())
+    )
+
     observeEvent(input$datasets, {
+      req(input$datasets)
 
       only_numeric <- sapply(data()[[input$datasets]], is.numeric)
 
@@ -39,7 +45,6 @@ custom_module_server <- function(id, data) {
         inputId = "variables",
         choices = names(data()[[input$datasets]])[only_numeric]
       )
-
     })
 
     result <- reactive({
@@ -74,15 +79,15 @@ my_custom_module <- function(label = "My custom module") {
   )
 }
 
+data <- within(teal_data(), {
+  # my_iris <- iris
+  # my_mtcars <- mtcars
+  ADSL <- teal.data::rADSL
+  ADAE <- teal.data::rADAE
+})
+
 app <- init(
-  data = teal_data(
-    iris = iris,
-    mtcars = mtcars,
-    code = "
-      iris <- iris
-      mtcars <- mtcars
-    "
-  ),
+  data = data,
   modules = modules(
     my_custom_module(label = "my module")
   ),
