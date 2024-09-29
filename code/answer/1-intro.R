@@ -1,17 +1,18 @@
 library(teal)
 
-data = teal_data(
-  iris = iris,
-  code = "
-    iris <- iris
-  "
-)
+# data = teal_data(
+#   iris = iris,
+#   code = "
+#     iris <- iris
+#   "
+# )
 
-# data <- teal_data()
-# data <- within(data, {
-#   iris <- iris
-# })
-# datanames(data) <- "iris"
+data <- cdisc_data()
+data <- within(data, {
+  ADSL <- teal.data::rADSL
+})
+datanames(data) <- "ADSL"
+
 data <- verify(data)
 
 app <- init(

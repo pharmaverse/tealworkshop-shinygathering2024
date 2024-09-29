@@ -2,7 +2,6 @@ library(teal)
 
 custom_module_ui <- function(id) {
   ns <- NS(id)
-  # tags$p("There is no UI")
   
   tags$div(
     shiny::selectInput(

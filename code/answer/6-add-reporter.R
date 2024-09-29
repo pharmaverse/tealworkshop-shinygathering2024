@@ -3,7 +3,7 @@ library(ggplot2)
 
 custom_module_ui <- function(id) {
   ns <- NS(id)
-  
+
   tags$div(
     shiny::selectInput(
       ns("datasets"),
@@ -15,45 +15,55 @@ custom_module_ui <- function(id) {
       label = "select variable",
       choices = NULL
     ),
+    shiny::sliderInput(
+      ns("binwidth"),
+      label = "select binwidth",
+      min = 0,
+      max = 5,
+      value = 2,
+      step = 0.5
+    ),
     shiny::plotOutput(ns("my_plot")),
     teal.widgets::verbatim_popup_ui(ns("rcode"), "Show R code"),
     teal.reporter::simple_reporter_ui(ns("reporter"))
   )
-  
+
 }
 
-custom_module_server <- function(id, data, reporter) {
+custom_module_server <- function(id, data, reporter, filter_panel_api) {
   moduleServer(id, function(input, output, session) {
-    
+
     observeEvent(input$datasets, {
-      
+
       only_numeric <- sapply(data()[[input$datasets]], is.numeric)
-      
+
       updateSelectInput(
         inputId = "variables",
         choices = names(data()[[input$datasets]])[only_numeric]
       )
-      
+
     })
-    
+
     result <- reactive({
       req(input$datasets)
-      req(input$variables)
+      # req(input$variables)
+      req(input$variables %in% names(data()[[input$datasets]]))
       new_data <- within(
         data(), {
           my_plot <- ggplot(input_dataset, aes(x = input_vars)) +
-            geom_histogram(binwidth = 2, fill = "skyblue", color = "black")
+            geom_histogram(binwidth = input_binwidth, fill = "skyblue", color = "black")
           my_plot
         },
         input_dataset = as.name(input$datasets),
-        input_vars = as.name(input$variables)        
+        input_vars = as.name(input$variables),
+        input_binwidth = input$binwidth
       )
     })
-    
+
     output$my_plot <- shiny::renderPlot({
       result()[["my_plot"]]
     })
-    
+
     teal.widgets::verbatim_popup_srv(
       id = "rcode",
       verbatim_content = reactive(
@@ -61,18 +71,21 @@ custom_module_server <- function(id, data, reporter) {
       ),
       title = "Example Code"
     )
-    
-    custom_function <- function(card = teal.reporter::ReportCard$new()) {
+
+    # https://insightsengineering.github.io/teal/latest-tag/articles/adding-support-for-reporting.html#tealreportcard
+
+    card_function <- function(card = teal::TealReportCard$new()) {
+      card$append_fs(filter_panel_api$get_filter_state())
       card$append_text(paste("Selected dataset", input$datasets))
       card$append_plot(result()[["my_plot"]])
     }
-    
+
     teal.reporter::simple_reporter_srv(
       id = "reporter",
       reporter = reporter,
-      card_fun = custom_function
-    )    
-    
+      card_fun = card_function
+    )
+
   })
 }
 
