@@ -26,21 +26,7 @@ tealmodule_ui <- function(id) {
       label = "Datasets",
       choices = NULL
     ),
-    shiny::selectInput(
-      inputId = ns("variables"),
-      label = "Variables",
-      choices = NULL
-    ),
-    shiny::sliderInput(
-      inputId = ns("binwidth"),
-      label = "Binwidth",
-      min = 0,
-      max = 5,
-      step = 0.5,
-      value = 2
-    ),
-    shiny::plotOutput(ns("plt"))
-
+    # Add code here
   )
 }
 
@@ -52,35 +38,7 @@ tealmodule_server <- function(id, data) {
       choices = datanames(data())
     )
 
-    observeEvent(input$datasets, {
-      req(input$datasets)
-      only_numeric <- sapply(data()[[input$datasets]], is.numeric)
-
-      shiny::updateSelectInput(
-        inputId = "variables",
-        choices = names(data()[[input$datasets]])[only_numeric]
-      )
-    })
-
-    result <- reactive({
-      req(input$datasets)
-      req(input$variables %in% names(data()[[input$datasets]]))
-      new_data <- within(
-        data(),
-        {
-          my_plot <- ggplot(input_dataset, aes(x = input_vars)) +
-            geom_histogram(binwidth = input_binwidth, fill = "skyblue", color = "black")
-        },
-        input_dataset = as.name(input$datasets),
-        input_vars = as.name(input$variables),
-        input_binwidth = input$binwidth
-      )
-      new_data
-    })
-
-    output$plt <- shiny::renderPlot({
-      result()[["my_plot"]]
-    })
+    # Add code here
 
   })
 }
@@ -110,7 +68,7 @@ app <- init(
   modules = modules(
     my_custom_module()
   ),
-  header = "my teal app"
+  header = "Shiny Gathering 2024"
 )
 
 shinyApp(app$ui, app$server)

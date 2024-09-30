@@ -1,46 +1,40 @@
-# ?teal.widgets::standard_layout
+# https://insightsengineering.github.io/teal.data/latest-tag/articles/teal-data-reproducibility.html#retrieving-code
+# Add teal.widgets::verbatim_popup_ui to ui module
+# Add teal.widgets::verbatim_popup_srv to server module
+# The value of teal.widgets::verbatim_popup_srv(verbatim_content=) have to be in reactive context
 
 library(teal)
 library(ggplot2)
 
 tealmodule_ui <- function(id) {
   ns <- NS(id)
-
-  # Add code here
-  teal.widgets::standard_layout(
-    output = shiny::plotOutput(ns("plt")),
-    encoding = tags$div(
-      teal.reporter::simple_reporter_ui(ns("reporter")),
-      shiny::selectInput(
-        inputId = ns("datasets"),
-        label = "Datasets",
-        choices = NULL
-      ),
-      shiny::selectInput(
-        inputId = ns("variables"),
-        label = "Variables",
-        choices = NULL
-      ),
-      shiny::sliderInput(
-        inputId = ns("binwidth"),
-        label = "Binwidth",
-        min = 0,
-        max = 5,
-        step = 0.5,
-        value = 2
-      )
+  tags$div(
+    shiny::selectInput(
+      inputId = ns("datasets"),
+      label = "Datasets",
+      choices = NULL
     ),
-    forms = shiny::tagList(
-      teal.widgets::verbatim_popup_ui(
-        id = ns("rcode"),
-        button_label = "Show R Code"
-      )
-    )
-  )
+    shiny::selectInput(
+      inputId = ns("variables"),
+      label = "Variables",
+      choices = NULL
+    ),
+    shiny::sliderInput(
+      inputId = ns("binwidth"),
+      label = "Binwidth",
+      min = 0,
+      max = 5,
+      step = 0.5,
+      value = 2
+    ),
+    shiny::plotOutput(ns("plt")),
+    ## Add code here
 
+
+  )
 }
 
-tealmodule_server <- function(id, data, reporter, filter_panel_api) {
+tealmodule_server <- function(id, data) {
   moduleServer(id, function(input, output, session) {
 
     shiny::updateSelectInput(
@@ -78,23 +72,8 @@ tealmodule_server <- function(id, data, reporter, filter_panel_api) {
       result()[["my_plot"]]
     })
 
-    teal.widgets::verbatim_popup_srv(
-      id = "rcode",
-      verbatim_content = reactive(get_code(result())),
-      title = "Code to reproduce the analysis"
-    )
+    ## Add code here
 
-    card_fun <- function(card = teal::TealReportCard$new()) {
-      card$append_fs(filter_panel_api$get_filter_state())
-      card$append_text(paste("Selected dataset", input$datasets))
-      card$append_plot(result()[["my_plot"]])
-    }
-
-    teal.reporter::simple_reporter_srv(
-      id = "reporter",
-      reporter = reporter,
-      card_fun = card_fun
-    )
 
   })
 }
@@ -124,7 +103,7 @@ app <- init(
   modules = modules(
     my_custom_module()
   ),
-  header = "my teal app"
+  header = "Shiny Gathering 2024"
 )
 
 shinyApp(app$ui, app$server)

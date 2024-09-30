@@ -1,46 +1,49 @@
-# ?teal.widgets::standard_layout
+# https://insightsengineering.github.io/teal/latest-tag/articles/adding-support-for-reporting.html#tealreportcard
+#
+# * Add reporter argument in your server module
+# * Use teal.reporter::simple_reporter_ui in ui
+# * Use teal.reporter::simple_reporter_srv in server
+# * create card_func to be included in teal.reporter::simple_reporter_srv
+# * append text and append plot
+# * Learn about filter_panel_api
+# * append filter state to the card_func
 
 library(teal)
 library(ggplot2)
 
 tealmodule_ui <- function(id) {
   ns <- NS(id)
-
-  # Add code here
-  teal.widgets::standard_layout(
-    output = shiny::plotOutput(ns("plt")),
-    encoding = tags$div(
-      teal.reporter::simple_reporter_ui(ns("reporter")),
-      shiny::selectInput(
-        inputId = ns("datasets"),
-        label = "Datasets",
-        choices = NULL
-      ),
-      shiny::selectInput(
-        inputId = ns("variables"),
-        label = "Variables",
-        choices = NULL
-      ),
-      shiny::sliderInput(
-        inputId = ns("binwidth"),
-        label = "Binwidth",
-        min = 0,
-        max = 5,
-        step = 0.5,
-        value = 2
-      )
+  tags$div(
+    shiny::selectInput(
+      inputId = ns("datasets"),
+      label = "Datasets",
+      choices = NULL
     ),
-    forms = shiny::tagList(
-      teal.widgets::verbatim_popup_ui(
-        id = ns("rcode"),
-        button_label = "Show R Code"
-      )
-    )
-  )
+    shiny::selectInput(
+      inputId = ns("variables"),
+      label = "Variables",
+      choices = NULL
+    ),
+    shiny::sliderInput(
+      inputId = ns("binwidth"),
+      label = "Binwidth",
+      min = 0,
+      max = 5,
+      step = 0.5,
+      value = 2
+    ),
+    shiny::plotOutput(ns("plt")),
+    teal.widgets::verbatim_popup_ui(
+      id = ns("rcode"),
+      button_label = "Show R Code"
+    ),
+    # Add code here
 
+  )
 }
 
-tealmodule_server <- function(id, data, reporter, filter_panel_api) {
+# Update argument
+tealmodule_server <- function(id, data) {
   moduleServer(id, function(input, output, session) {
 
     shiny::updateSelectInput(
@@ -84,17 +87,7 @@ tealmodule_server <- function(id, data, reporter, filter_panel_api) {
       title = "Code to reproduce the analysis"
     )
 
-    card_fun <- function(card = teal::TealReportCard$new()) {
-      card$append_fs(filter_panel_api$get_filter_state())
-      card$append_text(paste("Selected dataset", input$datasets))
-      card$append_plot(result()[["my_plot"]])
-    }
-
-    teal.reporter::simple_reporter_srv(
-      id = "reporter",
-      reporter = reporter,
-      card_fun = card_fun
-    )
+    # Add code here
 
   })
 }
@@ -124,7 +117,7 @@ app <- init(
   modules = modules(
     my_custom_module()
   ),
-  header = "my teal app"
+  header = "Shiny Gathering 2024"
 )
 
 shinyApp(app$ui, app$server)

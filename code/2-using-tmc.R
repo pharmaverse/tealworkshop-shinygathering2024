@@ -1,24 +1,20 @@
-# * Run the app to see an example of teal app with multiple modules with pre-defined filters
 library(teal.modules.clinical)
 
 ADSL <- teal.modules.clinical::tmc_ex_adsl
 ADAE <- teal.modules.clinical::tmc_ex_adae
 ADTTE <- teal.modules.clinical::tmc_ex_adtte
 
-data <- cdisc_data(
-  ADSL = ADSL,
-  ADAE = ADAE,
-  ADTTE = ADTTE,
-  code = "
+app <- init(
+  data = cdisc_data(
+    ADSL = ADSL,
+    ADAE = ADAE,
+    ADTTE = ADTTE,
+    code = "
       ADSL <- teal.modules.clinical::tmc_ex_adsl
       ADAE <- teal.modules.clinical::tmc_ex_adae
       ADTTE <- teal.modules.clinical::tmc_ex_adtte
     "
-)
-data <- verify(data)
-
-app <- init(
-  data = data,
+  ),
   modules = modules(
     tm_t_summary(
       label = "Demographic Table",

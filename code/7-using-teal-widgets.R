@@ -6,11 +6,11 @@ library(ggplot2)
 tealmodule_ui <- function(id) {
   ns <- NS(id)
 
-  # Add code here
-  teal.widgets::standard_layout(
-    output = shiny::plotOutput(ns("plt")),
-    encoding = tags$div(
-      teal.reporter::simple_reporter_ui(ns("reporter")),
+  ## Use teal.widgets::standard_layout here
+
+  tealmodule_ui <- function(id) {
+    ns <- NS(id)
+    tags$div(
       shiny::selectInput(
         inputId = ns("datasets"),
         label = "Datasets",
@@ -28,15 +28,16 @@ tealmodule_ui <- function(id) {
         max = 5,
         step = 0.5,
         value = 2
-      )
-    ),
-    forms = shiny::tagList(
+      ),
+      shiny::plotOutput(ns("plt")),
       teal.widgets::verbatim_popup_ui(
         id = ns("rcode"),
         button_label = "Show R Code"
-      )
+      ),
+      teal.reporter::simple_reporter_ui(ns("reporter"))
+
     )
-  )
+  }
 
 }
 
@@ -124,7 +125,7 @@ app <- init(
   modules = modules(
     my_custom_module()
   ),
-  header = "my teal app"
+  header = "Shiny Gathering 2024"
 )
 
 shinyApp(app$ui, app$server)

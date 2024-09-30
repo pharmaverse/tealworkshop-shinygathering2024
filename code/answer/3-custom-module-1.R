@@ -1,49 +1,59 @@
 library(teal)
 
-custom_module_ui <- function(id) {
+tealmodule_ui <- function(id) {
   ns <- NS(id)
-  
+  # tags$p("Hello Shiny Gathering 2024 - custom teal module")
   tags$div(
     shiny::selectInput(
-      ns("datasets"),
-      label = "select dataset",
-      choices = c("iris", "mtcars")
+      inputId = ns("datasets"),
+      label = "Datasets",
+      choices = NULL
     ),
     DT::dataTableOutput(ns("tbl"))
   )
-  
 }
 
-custom_module_server <- function(id, data) {
+tealmodule_server <- function(id, data) {
   moduleServer(id, function(input, output, session) {
-    
+
+    updateSelectInput(
+      inputId = "datasets",
+      choices = datanames(data())
+    )
+
     output$tbl <- DT::renderDataTable({
       data()[[input$datasets]]
     })
-    
+
   })
 }
 
-my_custom_module <- function(label = "My custom module") {
+custom_teal_module <- function(label = "My Custom Teal Module") {
   module(
     label = label,
-    ui = custom_module_ui,
-    server = custom_module_server,
+    ui = tealmodule_ui,
+    server = tealmodule_server,
     datanames = "all"
   )
 }
 
+library(teal)
+
+data <- teal_data(
+  adsl = teal.data::rADSL,
+  adae = teal.data::rADAE,
+  code = "
+    adsl <- teal.data::rADSL
+    adae <- teal.data::rADAE
+  "
+)
+
+data <- verify(data)
+
 app <- init(
-  data = teal_data(
-    iris = iris,
-    mtcars = mtcars,
-    code = "
-      iris <- iris
-      mtcars <- mtcars
-    "
-  ),
+  data = data,
   modules = modules(
-    my_custom_module(label = "my module")
+    custom_teal_module()
   ),
   header = "my teal app"
 )
