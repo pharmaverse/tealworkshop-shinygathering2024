@@ -7,37 +7,33 @@ tealmodule_ui <- function(id) {
   ns <- NS(id)
 
   ## Use teal.widgets::standard_layout here
+  tags$div(
+    shiny::selectInput(
+      inputId = ns("datasets"),
+      label = "Datasets",
+      choices = NULL
+    ),
+    shiny::selectInput(
+      inputId = ns("variables"),
+      label = "Variables",
+      choices = NULL
+    ),
+    shiny::sliderInput(
+      inputId = ns("binwidth"),
+      label = "Binwidth",
+      min = 0,
+      max = 5,
+      step = 0.5,
+      value = 2
+    ),
+    shiny::plotOutput(ns("plt")),
+    teal.widgets::verbatim_popup_ui(
+      id = ns("rcode"),
+      button_label = "Show R Code"
+    ),
+    teal.reporter::simple_reporter_ui(ns("reporter"))
 
-  tealmodule_ui <- function(id) {
-    ns <- NS(id)
-    tags$div(
-      shiny::selectInput(
-        inputId = ns("datasets"),
-        label = "Datasets",
-        choices = NULL
-      ),
-      shiny::selectInput(
-        inputId = ns("variables"),
-        label = "Variables",
-        choices = NULL
-      ),
-      shiny::sliderInput(
-        inputId = ns("binwidth"),
-        label = "Binwidth",
-        min = 0,
-        max = 5,
-        step = 0.5,
-        value = 2
-      ),
-      shiny::plotOutput(ns("plt")),
-      teal.widgets::verbatim_popup_ui(
-        id = ns("rcode"),
-        button_label = "Show R Code"
-      ),
-      teal.reporter::simple_reporter_ui(ns("reporter"))
-
-    )
-  }
+  )
 
 }
 
